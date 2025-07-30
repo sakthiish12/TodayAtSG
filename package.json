@@ -28,8 +28,7 @@
     "format:frontend": "cd frontend && npm run format",
     "test": "npm run test:backend",
     "test:backend": "cd backend && python -m pytest",
-    "vercel:build": "npm run build:frontend",
-    "postinstall": "npm run install:frontend"
+    "vercel:build": "npm run build:frontend"
   },
   "keywords": [
     "singapore",
