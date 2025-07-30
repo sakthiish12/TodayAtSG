@@ -1,32 +1,8 @@
 {
   "version": 2,
-  "name": "todayatsg",
-  "builds": [
-    {
-      "src": "frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
-    {
-      "src": "/((?!api/).*)",
-      "dest": "/frontend/$1"
-    },
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/frontend/index.html"
-    }
-  ],
+  "buildCommand": "cd frontend && npm run build:vercel",
+  "outputDirectory": "frontend/dist",
+  "installCommand": "npm install && cd frontend && npm install",
   "functions": {
     "api/auth/*.py": {
       "runtime": "python3.11",
@@ -134,6 +110,10 @@
   ],
   "rewrites": [
     {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    },
+    {
       "source": "/docs",
       "destination": "/api/docs"
     },
@@ -144,6 +124,10 @@
     {
       "source": "/openapi.json",
       "destination": "/api/openapi.json"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
