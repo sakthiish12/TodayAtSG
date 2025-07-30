@@ -1,0 +1,26 @@
+# Core FastAPI dependencies
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+python-multipart
+
+# Authentication
+python-jose[cryptography]
+passlib[bcrypt]
+
+# Database
+sqlalchemy>=2.0.0
+alembic
+asyncpg
+
+# Config
+pydantic>=2.0.0
+pydantic-settings
+python-decouple
+
+# HTTP Client
+httpx
+requests
+
+# Testing
+pytest
+pytest-asyncio
