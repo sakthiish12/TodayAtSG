@@ -1,0 +1,52 @@
+# Serverless API Requirements for TodayAtSG
+# Optimized for Vercel serverless functions
+
+# FastAPI Core (lightweight for serverless)
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# Authentication & Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.1.2
+
+# Database (async support)
+sqlalchemy==2.0.23
+asyncpg==0.29.0
+psycopg2-binary==2.9.9
+
+# Validation
+pydantic==2.5.0
+pydantic-settings==2.1.0
+email-validator==2.1.0
+
+# Environment configuration
+python-decouple==3.8
+python-dotenv==1.0.0
+
+# HTTP client (for external APIs)
+httpx==0.25.2
+
+# Payment processing
+stripe==7.8.0
+
+# Google Maps
+googlemaps==4.10.0
+
+# Date/time utilities
+python-dateutil==2.8.2
+
+# Logging and monitoring
+structlog==23.2.0
+sentry-sdk[fastapi]==1.38.0
+
+# File handling
+aiofiles==23.2.1
+
+# Web scraping (lightweight for serverless)
+beautifulsoup4==4.12.2
+lxml==4.9.3
+
+# Caching and performance
+redis==5.0.1

@@ -1,0 +1,56 @@
+{
+  "name": "todayatsg",
+  "version": "1.0.0",
+  "description": "Singapore Events Map Website - Discover amazing events happening in Singapore",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0",
+    "npm": ">=10.0.0"
+  },
+  "scripts": {
+    "dev": "npm run dev:frontend",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && python run_dev.py",
+    "build": "npm run build:frontend",
+    "build:frontend": "cd frontend && npm run build:vercel",
+    "build:production": "npm run build:frontend",
+    "preview": "cd frontend && npm run preview",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && pip install -r requirements.txt",
+    "install:frontend": "cd frontend && npm install",
+    "install:backend": "cd backend && pip install -r requirements.txt",
+    "clean": "npm run clean:frontend && npm run clean:backend",
+    "clean:frontend": "cd frontend && npm run clean",
+    "clean:backend": "cd backend && rm -rf __pycache__ .pytest_cache",
+    "lint": "npm run lint:frontend",
+    "lint:frontend": "cd frontend && npm run lint",
+    "format": "npm run format:frontend",
+    "format:frontend": "cd frontend && npm run format",
+    "test": "npm run test:backend",
+    "test:backend": "cd backend && python -m pytest",
+    "vercel:build": "npm run build:frontend",
+    "postinstall": "npm run install:frontend"
+  },
+  "keywords": [
+    "singapore",
+    "events",
+    "map",
+    "vue",
+    "fastapi",
+    "postgres",
+    "google-maps"
+  ],
+  "author": "TodayAtSG Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/todayatsg.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/todayatsg/issues"
+  },
+  "homepage": "https://todayatsg.com",
+  "workspaces": [
+    "frontend"
+  ]
+}

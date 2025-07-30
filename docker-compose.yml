@@ -1,0 +1,151 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: todayatsg_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: todayatsg
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - todayatsg_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis for Celery
+  redis:
+    image: redis:7-alpine
+    container_name: todayatsg_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - todayatsg_network
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: todayatsg_backend
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:password@postgres:5432/todayatsg
+      - DATABASE_URL_SYNC=postgresql://postgres:password@postgres:5432/todayatsg
+      - REDIS_URL=redis://redis:6379/0
+      - DEBUG=True
+      - SECRET_KEY=your-super-secret-key-for-development
+    volumes:
+      - ./backend:/app
+      - backend_uploads:/app/uploads
+    ports:
+      - "8000:8000"
+    networks:
+      - todayatsg_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Vue.js Frontend (Development)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: todayatsg_frontend
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000/api
+      - VITE_DEBUG_MODE=true
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    networks:
+      - todayatsg_network
+    depends_on:
+      - backend
+    command: npm run dev
+    stdin_open: true
+    tty: true
+
+  # Celery Worker (for background tasks)
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: todayatsg_celery_worker
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:password@postgres:5432/todayatsg
+      - DATABASE_URL_SYNC=postgresql://postgres:password@postgres:5432/todayatsg
+      - REDIS_URL=redis://redis:6379/0
+      - DEBUG=True
+      - SECRET_KEY=your-super-secret-key-for-development
+    volumes:
+      - ./backend:/app
+    networks:
+      - todayatsg_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: celery -A app.services.celery_app worker --loglevel=info
+
+  # Celery Beat (for scheduled tasks)
+  celery_beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: todayatsg_celery_beat
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:password@postgres:5432/todayatsg
+      - DATABASE_URL_SYNC=postgresql://postgres:password@postgres:5432/todayatsg
+      - REDIS_URL=redis://redis:6379/0
+      - DEBUG=True
+      - SECRET_KEY=your-super-secret-key-for-development
+    volumes:
+      - ./backend:/app
+    networks:
+      - todayatsg_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: celery -A app.services.celery_app beat --loglevel=info
+
+networks:
+  todayatsg_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  backend_uploads:
+    driver: local

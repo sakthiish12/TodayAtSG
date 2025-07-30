@@ -1,0 +1,149 @@
+{
+  "version": 2,
+  "name": "todayatsg",
+  "builds": [
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/((?!api/).*)",
+      "dest": "/frontend/$1"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/index.html"
+    }
+  ],
+  "functions": {
+    "api/auth/*.py": {
+      "runtime": "python3.11",
+      "maxDuration": 30
+    },
+    "api/events/*.py": {
+      "runtime": "python3.11",
+      "maxDuration": 30
+    },
+    "api/reviews/*.py": {
+      "runtime": "python3.11",
+      "maxDuration": 30
+    },
+    "api/users/*.py": {
+      "runtime": "python3.11",
+      "maxDuration": 30
+    },
+    "api/categories/*.py": {
+      "runtime": "python3.11",
+      "maxDuration": 30
+    },
+    "api/tags/*.py": {
+      "runtime": "python3.11",
+      "maxDuration": 30
+    },
+    "api/payment/*.py": {
+      "runtime": "python3.11",
+      "maxDuration": 30
+    },
+    "api/scraping/*.py": {
+      "runtime": "python3.11",
+      "maxDuration": 300
+    },
+    "api/admin/*.py": {
+      "runtime": "python3.11",
+      "maxDuration": 30
+    }
+  },
+  "env": {
+    "PYTHON_VERSION": "3.11"
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "s-maxage=1, stale-while-revalidate=59"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "geolocation=(self), camera=(), microphone=(), payment=(self)"
+        }
+      ]
+    },
+    {
+      "source": "/static/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/health",
+      "destination": "/api/health",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/docs",
+      "destination": "/api/docs"
+    },
+    {
+      "source": "/redoc",
+      "destination": "/api/redoc"
+    },
+    {
+      "source": "/openapi.json",
+      "destination": "/api/openapi.json"
+    }
+  ]
+}
